@@ -32,7 +32,12 @@ const CONFIG = {
         startY: 12,
 
         borderRadius: 9.5,
-        borderWidth: 3
+        borderWidth: 3,
+
+        direction: "horizontal",
+
+        sidebarX: 0,
+        sidebarY: 450
     }
 };
 
@@ -92,15 +97,15 @@ function pageFadeTween(page) {
     // fade in background animation
     const duration = 800;
 
-   // remove all previous tweens at one place   
-    let isFirstPage = page.icon ? false : true ;
+    // remove all previous tweens at one place   
+    let isFirstPage = page.icon ? false : true;
 
-    if(isFirstPage === true){
+    if (isFirstPage === true) {
         createjs.Tween.removeTweens(page);
         createjs.Tween.removeTweens(page.headerTxt);
         createjs.Tween.removeTweens(page.subTxt);
-    }else{
-         createjs.Tween.removeTweens(page);
+    } else {
+        createjs.Tween.removeTweens(page);
         createjs.Tween.removeTweens(page.headerTxt);
         createjs.Tween.removeTweens(page.subTxt);
         createjs.Tween.removeTweens(page.icon);
@@ -188,7 +193,7 @@ function createPage1(parent) {
 function createPage2(parent) {
     const page = new createjs.Container();
 
- addPageBackground(page, CONFIG.colors.page2);
+    addPageBackground(page, CONFIG.colors.page2);
 
     const line2 = new createjs.Bitmap(loader.getResult("1_line"));
     page.addChild(line2);
@@ -229,7 +234,7 @@ function createPage2(parent) {
     const circle = addCircle(page);
 
     page.runAnimation = () => {
-      
+
         pageFadeTween(page);
 
         const elementShowDelay = 500;
@@ -283,7 +288,7 @@ function createPage3(parent) {
 
     const page = new createjs.Container();
 
-  addPageBackground(page, CONFIG.colors.page3);
+    addPageBackground(page, CONFIG.colors.page3);
 
     const line3 = new createjs.Bitmap(loader.getResult("2_line"));
     page.addChild(line3);
@@ -325,7 +330,7 @@ function createPage3(parent) {
     const circle = addCircle(page);
 
     page.runAnimation = () => {
-     
+
         pageFadeTween(page);
 
         const elementShowDelay = 500;
@@ -413,12 +418,12 @@ function createPage4(parent) {
     page.icon = icon4;
     page.num = num4;
     page.headerTxt = headerTxt4;
-    page.subTxt = subTxt4;    
+    page.subTxt = subTxt4;
 
     const circle = addCircle(page);
 
     page.runAnimation = () => {
-      
+
         pageFadeTween(page);
 
         const elementShowDelay = 500;
@@ -465,7 +470,7 @@ function createPage4(parent) {
 function createPage5(parent) {
     const page = new createjs.Container();
 
- addPageBackground(page, CONFIG.colors.page5);
+    addPageBackground(page, CONFIG.colors.page5);
 
     const line5 = new createjs.Bitmap(loader.getResult("4_line"));
     page.addChild(line5);
@@ -507,7 +512,7 @@ function createPage5(parent) {
     const circle = addCircle(page);
 
     page.runAnimation = () => {
-      
+
         pageFadeTween(page);
 
         const elementShowDelay = 500;
@@ -557,7 +562,7 @@ function createPage5(parent) {
 function createPage6(parent) {
     const page = new createjs.Container();
 
- addPageBackground(page, CONFIG.colors.page6);
+    addPageBackground(page, CONFIG.colors.page6);
 
     const line6 = new createjs.Bitmap(loader.getResult("5_line"));
     page.addChild(line6);
@@ -598,7 +603,7 @@ function createPage6(parent) {
     page.icon = icon6;
     page.num = num6;
     page.headerTxt = headerTxt6;
-    page.subTxt = subTxt6;    
+    page.subTxt = subTxt6;
 
     const circle = addCircle(page);
 
@@ -747,6 +752,31 @@ function containInRange(thumbContainerX, thumbContainer) {
     return thumbContainerX;
 }
 
+function containInRangeVertical(
+    thumbContainerY,
+    thumbContainer
+) {
+
+    const contentHeight =
+        thumbContainer.children.length *
+        (CONFIG.thumb.height + CONFIG.thumb.gap);
+
+    const minY = Math.min(
+        CONFIG.thumb.startY,
+        640 - contentHeight - CONFIG.thumb.startY
+    );
+
+    if (thumbContainerY > CONFIG.thumb.startY) {
+        thumbContainerY = CONFIG.thumb.startY;
+    }
+
+    if (thumbContainerY < minY) {
+        thumbContainerY = minY;
+    }
+
+    return thumbContainerY;
+}
+
 export function buildBanner(loaderArg, stageArg) {
     loader = loaderArg;
     stage = stageArg;
@@ -819,8 +849,17 @@ export function buildBanner(loaderArg, stageArg) {
 
     const sideBarYOffset = 12;
     const sidebar = new createjs.Container();
-    sidebar.x = 0;
-    sidebar.y = 462 - sideBarYOffset;
+
+    if (CONFIG.thumb.direction === "horizontal") {
+
+        sidebar.x = CONFIG.thumb.sidebarX;
+        sidebar.y = CONFIG.thumb.sidebarY;
+
+    } else {
+
+        sidebar.x = CONFIG.thumb.sidebarX; // right side
+        sidebar.y = CONFIG.thumb.sidebarY;
+    }
 
     stage.addChild(sidebar);
 
@@ -842,24 +881,50 @@ export function buildBanner(loaderArg, stageArg) {
 
     let isDragging = false;
     let dragStartX = 0;
+    let dragStartY = 0;
+
     let containerStartX = 0;
+    let containerStartY = 0;
 
     thumbContainer.on("mousedown", (evt) => {
         isDragging = false;
         dragStartX = evt.stageX;
+        dragStartY = evt.stageY;
+
         containerStartX = thumbContainer.x;
+        containerStartY = thumbContainer.y;
     });
 
     thumbContainer.on("pressmove", (evt) => {
 
-        const deltaX = evt.stageX - dragStartX;
+        if (CONFIG.thumb.direction === "horizontal") {
 
-        if (Math.abs(deltaX) > 5) {
-            isDragging = true;
+            const deltaX = evt.stageX - dragStartX;
+
+            if (Math.abs(deltaX) > 5) {
+                isDragging = true;
+            }
+
+            thumbContainer.x =
+                containInRange(
+                    containerStartX + deltaX,
+                    thumbContainer
+                );
+
+        } else {
+
+            const deltaY = evt.stageY - dragStartY;
+
+            if (Math.abs(deltaY) > 5) {
+                isDragging = true;
+            }
+
+            thumbContainer.y =
+                containInRangeVertical(
+                    containerStartY + deltaY,
+                    thumbContainer
+                );
         }
-
-        thumbContainer.x = containerStartX + deltaX;
-        thumbContainer.x = containInRange(thumbContainer.x, thumbContainer);
     });
 
     thumbContainer.on("pressup", () => {
@@ -914,14 +979,21 @@ export function buildBanner(loaderArg, stageArg) {
         frame.visible = (i === 0);
         frame.name = "frame";
 
-       thumbWrapper.x =
-    i * (
-        CONFIG.thumb.width +
-        CONFIG.thumb.gap
-    );
+        if (CONFIG.thumb.direction === "horizontal") {
 
-thumbWrapper.y =
-    CONFIG.thumb.startY;
+            thumbWrapper.x =
+                i * (CONFIG.thumb.width + CONFIG.thumb.gap);
+
+            thumbWrapper.y = CONFIG.thumb.startY;
+
+        } else {
+
+            thumbWrapper.x = CONFIG.thumb.startX;
+
+            thumbWrapper.y =
+                CONFIG.thumb.startY +
+                i * (CONFIG.thumb.height + CONFIG.thumb.gap);
+        }
 
         thumbWrapper.cursor = "pointer";
 
@@ -971,8 +1043,26 @@ thumbWrapper.y =
 
         e.preventDefault();
 
-        thumbContainer.x -= e.deltaY * 0.5;
-        thumbContainer.x = containInRange(thumbContainer.x, thumbContainer);
+        if (CONFIG.thumb.direction === "horizontal") {
+
+            thumbContainer.x -= e.deltaY * 0.5;
+
+            thumbContainer.x =
+                containInRange(
+                    thumbContainer.x,
+                    thumbContainer
+                );
+
+        } else {
+
+            thumbContainer.y -= e.deltaY * 0.5;
+
+            thumbContainer.y =
+                containInRangeVertical(
+                    thumbContainer.y,
+                    thumbContainer
+                );
+        }
     });
 
     // ---------------------
