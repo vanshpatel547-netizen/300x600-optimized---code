@@ -1,12 +1,14 @@
 /**
  * animations.js - Build banner with animations and interactive elements
  */
+
 let loader, stage, root;
 let page1, page2, page3, page4, page5, page6;
 let animationTimer = null;
 let activePage = null;
 const ANIMATION_DELAY = 4000;
 const CONFIG = {
+
     width: 300,
     height: 600,
 
@@ -16,6 +18,21 @@ const CONFIG = {
         page4: "#F6A027",
         page5: "#6ABFA5",
         page6: "#1062A4"
+    },
+
+    thumb: {
+        width: 84,
+        height: 126,
+        gap: 11,
+
+        scaleX: 0.28,
+        scaleY: 0.28,
+
+        startX: 10,
+        startY: 12,
+
+        borderRadius: 9.5,
+        borderWidth: 3
     }
 };
 
@@ -263,9 +280,8 @@ function createPage2(parent) {
 }
 
 function createPage3(parent) {
-    const page = new createjs.Container();
 
-    const block3 = new createjs.Shape();
+    const page = new createjs.Container();
 
   addPageBackground(page, CONFIG.colors.page3);
 
@@ -299,9 +315,6 @@ function createPage3(parent) {
 
     const subX = subTxt3.x;
     subTxt3.alpha = 0;
-
-    const subScaleX = subTxt3.scaleX;
-    const subScaleY = subTxt3.scaleY;
 
     page.line = line3;
     page.icon = icon3;
@@ -581,8 +594,6 @@ function createPage6(parent) {
     const headerX = headerTxt6.x;
     headerTxt6.alpha = 0;
 
-    const headerY2 = headerTxt6.y || 0;
-
     page.line = line6;
     page.icon = icon6;
     page.num = num6;
@@ -662,6 +673,7 @@ function addCircle(parent, x = 105, y = 12, isFirstPage = false) {
 }
 
 function addMask(x, y, width, height, parent, elementToMask) {
+
     const maskShape = new createjs.Shape();
     maskShape.graphics
         .beginFill("#00000000")
@@ -718,11 +730,11 @@ function resetThumbToFinalState(page) {
 
 }
 
-function containInRange(thumbContainerX, thumbContainer, THUMB_GAP) {
-    const thumbWidth = 84;
-    const contentWidth = thumbContainer.children.length * (thumbWidth + THUMB_GAP);
+function containInRange(thumbContainerX, thumbContainer) {
 
-    const minX = Math.min(10, 312 - contentWidth - 10);
+    const contentWidth = thumbContainer.children.length * (CONFIG.thumb.width + CONFIG.thumb.gap);
+
+    const minX = Math.min(CONFIG.thumb.startX, 312 - contentWidth - CONFIG.thumb.startX);
 
     if (thumbContainerX > 10) {
         thumbContainerX = 10;
@@ -847,7 +859,7 @@ export function buildBanner(loaderArg, stageArg) {
         }
 
         thumbContainer.x = containerStartX + deltaX;
-        thumbContainer.x = containInRange(thumbContainer.x, thumbContainer, THUMB_GAP);
+        thumbContainer.x = containInRange(thumbContainer.x, thumbContainer);
     });
 
     thumbContainer.on("pressup", () => {
@@ -859,7 +871,6 @@ export function buildBanner(loaderArg, stageArg) {
     // ---------------------
     // THUMBNAILS
     // ---------------------
-    const THUMB_GAP = 11;
 
     const pageCreators = [createPage1, createPage2, createPage3, createPage4, createPage5, createPage6];
 
@@ -882,31 +893,35 @@ export function buildBanner(loaderArg, stageArg) {
 
         thumb.addChild(thumbDisclaimer);
 
-        thumb.scaleX = 0.28;
-        thumb.scaleY = 0.28;
-        const thumbWidth = 84;
-        const thumbHeight = 126;
+        thumb.scaleX = CONFIG.thumb.scaleX;
+        thumb.scaleY = CONFIG.thumb.scaleY;
 
-        addMask(0, 0, 84, 126, thumbWrapper, thumb);
+        addMask(0, 0, CONFIG.thumb.width, CONFIG.thumb.height, thumbWrapper, thumb);
 
         // Black rounded frame
         const frame = new createjs.Shape();
         frame.graphics
-            .setStrokeStyle(3)
+            .setStrokeStyle(CONFIG.thumb.borderWidth)
             .beginStroke("#000000")
             .drawRoundRect(
                 0,
                 0,
-                thumbWidth,
-                thumbHeight,
-                9.5
+                CONFIG.thumb.width,
+                CONFIG.thumb.height,
+                CONFIG.thumb.borderRadius
             );
 
         frame.visible = (i === 0);
         frame.name = "frame";
 
-        thumbWrapper.x = i * (thumbWidth + THUMB_GAP);
-        thumbWrapper.y = sideBarYOffset;
+       thumbWrapper.x =
+    i * (
+        CONFIG.thumb.width +
+        CONFIG.thumb.gap
+    );
+
+thumbWrapper.y =
+    CONFIG.thumb.startY;
 
         thumbWrapper.cursor = "pointer";
 
@@ -957,7 +972,7 @@ export function buildBanner(loaderArg, stageArg) {
         e.preventDefault();
 
         thumbContainer.x -= e.deltaY * 0.5;
-        thumbContainer.x = containInRange(thumbContainer.x, thumbContainer, THUMB_GAP);
+        thumbContainer.x = containInRange(thumbContainer.x, thumbContainer);
     });
 
     // ---------------------
