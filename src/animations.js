@@ -51,6 +51,20 @@ function pageFadeTween(page) {
     // fade in background animation
     const duration = 800;
 
+   // remove all previous tweens at one place   
+    let isFirstPage = page.icon ? false : true ;
+
+    if(isFirstPage === true){
+        createjs.Tween.removeTweens(page);
+        createjs.Tween.removeTweens(page.headerTxt);
+        createjs.Tween.removeTweens(page.subTxt);
+    }else{
+         createjs.Tween.removeTweens(page);
+        createjs.Tween.removeTweens(page.headerTxt);
+        createjs.Tween.removeTweens(page.subTxt);
+        createjs.Tween.removeTweens(page.icon);
+    }
+
     root.bgFront.alpha = 1;
     createjs.Tween.get(root.bgFront)
         .to({ alpha: 0 }, duration + 200, createjs.Ease.quadOut)
@@ -77,6 +91,7 @@ function pageFadeTween(page) {
 }
 
 function createPage1(parent) {
+
     const page = new createjs.Container();
 
     const bg = new createjs.Bitmap(loader.getResult("0_bg_plain"));
@@ -93,10 +108,10 @@ function createPage1(parent) {
 
     const circle = addCircle(page, 0, 0, true);
 
+    page.headerTxt = headerTxt;
+    page.subTxt = subTxt;
+
     page.runAnimation = () => {
-        createjs.Tween.removeTweens(page);
-        createjs.Tween.removeTweens(headerTxt);
-        createjs.Tween.removeTweens(subTxt);
 
         pageFadeTween(page);
 
@@ -173,15 +188,13 @@ function createPage2(parent) {
     page.line = line2;
     page.icon = icon2;
     page.num = num2;
+    page.headerTxt = headerTxt2;
+    page.subTxt = subTxt2;
 
     const circle = addCircle(page);
 
     page.runAnimation = () => {
-        createjs.Tween.removeTweens(page);
-        createjs.Tween.removeTweens(headerTxt2);
-        createjs.Tween.removeTweens(subTxt2);
-        createjs.Tween.removeTweens(icon2);
-
+      
         pageFadeTween(page);
 
         const elementShowDelay = 500;
@@ -279,15 +292,13 @@ function createPage3(parent) {
     page.line = line3;
     page.icon = icon3;
     page.num = num3;
+    page.headerTxt = headerTxt3;
+    page.subTxt = subTxt3;
 
     const circle = addCircle(page);
 
     page.runAnimation = () => {
-        createjs.Tween.removeTweens(page);
-        createjs.Tween.removeTweens(headerTxt3);
-        createjs.Tween.removeTweens(subTxt3);
-        createjs.Tween.removeTweens(icon3);
-
+     
         pageFadeTween(page);
 
         const elementShowDelay = 500;
@@ -380,15 +391,13 @@ function createPage4(parent) {
     page.line = line4;
     page.icon = icon4;
     page.num = num4;
+    page.headerTxt = headerTxt4;
+    page.subTxt = subTxt4;    
 
     const circle = addCircle(page);
 
     page.runAnimation = () => {
-        createjs.Tween.removeTweens(page);
-        createjs.Tween.removeTweens(headerTxt4);
-        createjs.Tween.removeTweens(subTxt4);
-        createjs.Tween.removeTweens(icon4);
-
+      
         pageFadeTween(page);
 
         const elementShowDelay = 500;
@@ -477,15 +486,13 @@ function createPage5(parent) {
     page.line = line5;
     page.icon = icon5;
     page.num = num5;
+    page.headerTxt = headerTxt5;
+    page.subTxt = subTxt5;
 
     const circle = addCircle(page);
 
     page.runAnimation = () => {
-        createjs.Tween.removeTweens(page);
-        createjs.Tween.removeTweens(headerTxt5);
-        createjs.Tween.removeTweens(subTxt5);
-        createjs.Tween.removeTweens(icon5);
-
+      
         pageFadeTween(page);
 
         const elementShowDelay = 500;
@@ -583,14 +590,12 @@ function createPage6(parent) {
     page.line = line6;
     page.icon = icon6;
     page.num = num6;
+    page.headerTxt = headerTxt6;
+    page.subTxt = subTxt6;    
 
     const circle = addCircle(page);
 
     page.runAnimation = () => {
-        createjs.Tween.removeTweens(page);
-        createjs.Tween.removeTweens(headerTxt6);
-        createjs.Tween.removeTweens(subTxt6);
-        createjs.Tween.removeTweens(icon6);
 
         pageFadeTween(page);
 
