@@ -6,6 +6,30 @@ let page1, page2, page3, page4, page5, page6;
 let animationTimer = null;
 let activePage = null;
 const ANIMATION_DELAY = 4000;
+const CONFIG = {
+    width: 300,
+    height: 600,
+
+    colors: {
+        page2: "#1062A4",
+        page3: "#825084",
+        page4: "#F6A027",
+        page5: "#6ABFA5",
+        page6: "#1062A4"
+    }
+};
+
+function addPageBackground(parent, color) {
+    const bg = new createjs.Shape();
+
+    bg.graphics
+        .beginFill(color)
+        .drawRect(0, 0, CONFIG.width, CONFIG.height);
+
+    parent.addChild(bg);
+
+    return bg;
+}
 
 function callClick(n) {
     let initialClickURL = '';
@@ -147,13 +171,7 @@ function createPage1(parent) {
 function createPage2(parent) {
     const page = new createjs.Container();
 
-    const block2 = new createjs.Shape();
-
-    block2.graphics
-        .beginFill("#1062A4")
-        .drawRect(0, 0, 300, 600);
-
-    page.addChild(block2);
+ addPageBackground(page, CONFIG.colors.page2);
 
     const line2 = new createjs.Bitmap(loader.getResult("1_line"));
     page.addChild(line2);
@@ -249,11 +267,7 @@ function createPage3(parent) {
 
     const block3 = new createjs.Shape();
 
-    block3.graphics
-        .beginFill("#825084")
-        .drawRect(0, 0, 300, 600);
-
-    page.addChild(block3);
+  addPageBackground(page, CONFIG.colors.page3);
 
     const line3 = new createjs.Bitmap(loader.getResult("2_line"));
     page.addChild(line3);
@@ -345,19 +359,13 @@ function createPage3(parent) {
 }
 
 function createPage4(parent) {
+
     const page = new createjs.Container();
 
-    const block4 = new createjs.Shape();
-
-    block4.graphics
-        .beginFill("#F6A027")
-        .drawRect(0, 0, 300, 600);
-
-    page.addChild(block4);
+    addPageBackground(page, CONFIG.colors.page4);
 
     const line4 = new createjs.Bitmap(loader.getResult("3_line"));
     line4.x = 0;
-    page.line = line4;
     page.addChild(line4);
 
     const icon4 = new createjs.Bitmap(loader.getResult("3_icon"));
@@ -444,13 +452,7 @@ function createPage4(parent) {
 function createPage5(parent) {
     const page = new createjs.Container();
 
-    const block5 = new createjs.Shape();
-
-    block5.graphics
-        .beginFill("#6ABFA5")
-        .drawRect(0, 0, 300, 600);
-
-    page.addChild(block5);
+ addPageBackground(page, CONFIG.colors.page5);
 
     const line5 = new createjs.Bitmap(loader.getResult("4_line"));
     page.addChild(line5);
@@ -542,13 +544,7 @@ function createPage5(parent) {
 function createPage6(parent) {
     const page = new createjs.Container();
 
-    const block6 = new createjs.Shape();
-
-    block6.graphics
-        .beginFill("#1062A4")
-        .drawRect(0, 0, 300, 600);
-
-    page.addChild(block6);
+ addPageBackground(page, CONFIG.colors.page6);
 
     const line6 = new createjs.Bitmap(loader.getResult("5_line"));
     page.addChild(line6);
