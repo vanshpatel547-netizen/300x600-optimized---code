@@ -8,10 +8,12 @@ let animationTimer = null;
 let activePage = null;
 const ANIMATION_DELAY = 4000;
 
+// Central layout and page configurations
 const CONFIG = {
     width: 300,
     height: 600,
 
+    // Dimensions and layout properties for sidebar thumbnails
     thumb: {
         width: 84,
         height: 126,
@@ -27,6 +29,7 @@ const CONFIG = {
         sidebarY: 450
     },
 
+    // Dynamic configuration for each of the banner's pages
     pages: [
         {
             bgAsset: "0_bg_plain",
@@ -120,6 +123,7 @@ const CONFIG = {
     ]
 };
 
+// Draws a solid background rectangle for a page
 function addPageBackground(parent, color) {
     const bg = new createjs.Shape();
     bg.graphics
@@ -129,6 +133,7 @@ function addPageBackground(parent, color) {
     return bg;
 }
 
+// Triggers the banner click-through redirection URL
 function callClick(n) {
     let initialClickURL = '';
     const finalClickURL = 'https://russpass.ru/igrai-v-moskvu?utm_source=solta&utm_medium=cpm&utm_campaign=tur_mi_summer_26_ru(mix)_Igrai_v_Moskvu_UIDln0dp2&utm_content=banner';
@@ -142,12 +147,14 @@ function callClick(n) {
     }
 }
 
+// Adds an invisible full-screen CTA overlay to capture clicks
 function addRedirectionRect() {
     addRectangleForCTA(stage, CONFIG.width / 2, CONFIG.height / 2, CONFIG.width, CONFIG.height, "#000000", 0.01, () => {
         callClick();
     });
 }
 
+// Helper to create a clickable CTA rectangle shape
 function addRectangleForCTA(container, x, y, width, height, color, alpha, callback) {
     alpha = 0.01;
     const rect = new createjs.Shape();
@@ -164,10 +171,11 @@ function addRectangleForCTA(container, x, y, width, height, color, alpha, callba
     return rect;
 }
 
+// Handles transitions by fading out the white overlay and fading in the page elements
 function pageFadeTween(page) {
     const duration = 800;
 
-    // remove all previous tweens at one place   
+    // Remove all previous tweens to prevent overlapping animations
     let isFirstPage = page.icon ? false : true;
 
     if (isFirstPage === true) {
@@ -207,10 +215,12 @@ function pageFadeTween(page) {
     }
 }
 
+// Dynamically creates a page container according to its CONFIG details
 function createPage(parent, index) {
     const config = CONFIG.pages[index];
     const page = new createjs.Container();
 
+    // Set up Background
     if (config.bgAsset) {
         const bg = new createjs.Bitmap(loader.getResult(config.bgAsset));
         page.addChild(bg);
@@ -218,12 +228,14 @@ function createPage(parent, index) {
         addPageBackground(page, config.bgColor);
     }
 
+    // Set up optional Line asset
     if (config.lineAsset) {
         const line = new createjs.Bitmap(loader.getResult(config.lineAsset));
         page.addChild(line);
         page.line = line;
     }
 
+    // Set up optional floating Icon
     if (config.icon) {
         const icon = new createjs.Bitmap(loader.getResult(config.icon.asset));
         icon.x = config.icon.x;
@@ -235,27 +247,32 @@ function createPage(parent, index) {
         page.icon = icon;
     }
 
+    // Set up Header text image
     const headerTxt = new createjs.Bitmap(loader.getResult(config.headerAsset));
     page.addChild(headerTxt);
     page.headerTxt = headerTxt;
     const headerFinalX = headerTxt.x;
 
+    // Set up optional Page Number asset
     if (config.numAsset) {
         const num = new createjs.Bitmap(loader.getResult(config.numAsset));
         page.addChild(num);
         page.num = num;
     }
 
+    // Set up Subtext image
     const subTxt = new createjs.Bitmap(loader.getResult(config.subtxtAsset));
     page.addChild(subTxt);
     page.subTxt = subTxt;
     const subTextFinalX = subTxt.x;
 
+    // Set up decorative Circle Text
     let circle = null;
     if (config.circle) {
         circle = addCircle(page, config.circle.x, config.circle.y, index === 0);
     }
 
+    // Encapsulate page entrance animation sequence
     page.runAnimation = () => {
         pageFadeTween(page);
 
@@ -267,6 +284,7 @@ function createPage(parent, index) {
             }, elementShowDelay);
         }
 
+        // Starting animation positions
         headerTxt.alpha = 0;
         headerTxt.x = headerFinalX + config.headerOffset;
 
@@ -282,10 +300,12 @@ function createPage(parent, index) {
             }
         }
 
+        // Header slide-in tween
         createjs.Tween.get(headerTxt)
             .wait(elementShowDelay)
             .to({ x: headerFinalX, alpha: 1 }, 500, createjs.Ease.quadOut);
 
+        // Subtext slide-in tween
         createjs.Tween.get(subTxt)
             .wait(elementShowDelay + (index === 0 ? 0 : 100))
             .to({ x: subTextFinalX, alpha: 1 }, 500, createjs.Ease.quadOut);
@@ -297,6 +317,7 @@ function createPage(parent, index) {
     return page;
 }
 
+// Creates the decorative rotating/animating text circle on a page
 function addCircle(parent, x = 105, y = 12, isFirstPage = false) {
     const circleTxt = new createjs.Bitmap(loader.getResult(isFirstPage ? "0_circle_txt" : "circle_txt"));
     parent.addChild(circleTxt);
@@ -315,6 +336,7 @@ function addCircle(parent, x = 105, y = 12, isFirstPage = false) {
     return circleTxt;
 }
 
+// Creates a rounded mask shape to crop elements inside thumbnails
 function addMask(x, y, width, height, parent, elementToMask) {
     const maskShape = new createjs.Shape();
     maskShape.graphics
@@ -328,6 +350,7 @@ function addMask(x, y, width, height, parent, elementToMask) {
     elementToMask.mask = maskShape;
 }
 
+// Starts a looping timer that repeats the current page's animations
 function startAnimationTimer(page) {
     stopAnimationTimer();
     activePage = page;
@@ -339,6 +362,7 @@ function startAnimationTimer(page) {
     }, ANIMATION_DELAY);
 }
 
+// Stops the looping animation timer
 function stopAnimationTimer() {
     if (animationTimer) {
         clearInterval(animationTimer);
@@ -347,6 +371,7 @@ function stopAnimationTimer() {
     activePage = null;
 }
 
+// Stops all animations and fully shows a container's children (used for static thumbnails)
 function resetThumbToFinalState(page) {
     page.children.forEach(child => {
         child.alpha = 1;
@@ -354,6 +379,7 @@ function resetThumbToFinalState(page) {
     });
 }
 
+// Clamps the horizontal scroll position of the thumbnail container within bounds
 function containInRange(thumbContainerX, thumbContainer) {
     const contentWidth = thumbContainer.children.length * (CONFIG.thumb.width + CONFIG.thumb.gap);
     const minX = Math.min(CONFIG.thumb.startX, (CONFIG.width + 12) - contentWidth - CONFIG.thumb.startX);
@@ -367,6 +393,7 @@ function containInRange(thumbContainerX, thumbContainer) {
     return thumbContainerX;
 }
 
+// Clamps the vertical scroll position of the thumbnail container within bounds
 function containInRangeVertical(thumbContainerY, thumbContainer) {
     const contentHeight = thumbContainer.children.length * (CONFIG.thumb.height + CONFIG.thumb.gap);
     const minY = Math.min(CONFIG.thumb.startY, (CONFIG.height + 40) - contentHeight - CONFIG.thumb.startY);
@@ -380,15 +407,18 @@ function containInRangeVertical(thumbContainerY, thumbContainer) {
     return thumbContainerY;
 }
 
+// Primary entrypoint to initialize and construct the entire banner
 export function buildBanner(loaderArg, stageArg) {
     loader = loaderArg;
     stage = stageArg;
 
+    // Create stage container to hold pages
     root = new createjs.Container();
     stage.addChild(root);
 
     addRedirectionRect();
 
+    // White rectangle to hide overflowing elements behind the thumbnail bar
     const pageMask = new createjs.Shape();
     pageMask.graphics
         .beginFill("#ffffff")
@@ -406,6 +436,7 @@ export function buildBanner(loaderArg, stageArg) {
         .drawRect(0, 0, CONFIG.width, CONFIG.height);
     root.addChild(bgWhite);
 
+    // Initialize all pages from CONFIG
     const pages = CONFIG.pages.map((_, i) => createPage(root, i));
     page1 = pages[0];
     page2 = pages[1];
@@ -414,6 +445,7 @@ export function buildBanner(loaderArg, stageArg) {
     page5 = pages[4];
     page6 = pages[5];
 
+    // White foreground fade overlay used for transitions
     const bgFront = new createjs.Shape();
     bgFront.graphics
         .beginFill("#ffffff")
@@ -423,6 +455,7 @@ export function buildBanner(loaderArg, stageArg) {
 
     startAnimationTimer(page1);
 
+    // Add disclaimer text image
     const disclaimerTxt = new createjs.Bitmap(loader.getResult("disclaimer"));
     stage.addChild(disclaimerTxt);
     disclaimerTxt.x = 0;
@@ -431,6 +464,7 @@ export function buildBanner(loaderArg, stageArg) {
     createjs.Tween.get(disclaimerTxt, { loop: false })
         .to({ alpha: 1 }, 1000);
 
+    // Set up scrolling thumbnail bar container
     const sidebar = new createjs.Container();
     sidebar.x = CONFIG.thumb.sidebarX;
     sidebar.y = CONFIG.thumb.sidebarY;
@@ -448,6 +482,7 @@ export function buildBanner(loaderArg, stageArg) {
     let containerStartX = 0;
     let containerStartY = 0;
 
+    // Touch and drag scroll listeners
     thumbContainer.on("mousedown", (evt) => {
         isDragging = false;
         dragStartX = evt.stageX;
@@ -478,6 +513,7 @@ export function buildBanner(loaderArg, stageArg) {
         }, 50);
     });
 
+    // Populate thumbnail container using page structures
     for (let i = 0; i < CONFIG.pages.length; i++) {
         const thumbWrapper = new createjs.Container();
         const thumb = createPage(thumbWrapper, i);
@@ -496,6 +532,7 @@ export function buildBanner(loaderArg, stageArg) {
 
         addMask(0, 0, CONFIG.thumb.width, CONFIG.thumb.height, thumbWrapper, thumb);
 
+        // Thumbnail black border frame
         const frame = new createjs.Shape();
         frame.graphics
             .setStrokeStyle(CONFIG.thumb.borderWidth)
@@ -516,6 +553,7 @@ export function buildBanner(loaderArg, stageArg) {
         thumbWrapper.cursor = "pointer";
         thumbWrapper.addChild(frame);
 
+        // Thumbnail click transitions to respective page
         thumbWrapper.on("click", () => {
             if (isDragging) return;
             if (pages[i].visible) return;
@@ -548,6 +586,7 @@ export function buildBanner(loaderArg, stageArg) {
         thumbContainer.addChild(thumbWrapper);
     }
 
+    // Mouse wheel scroll listener
     stage.canvas.addEventListener("wheel", (e) => {
         e.preventDefault();
         if (CONFIG.thumb.direction === "horizontal") {
@@ -559,9 +598,11 @@ export function buildBanner(loaderArg, stageArg) {
         }
     });
 
+    // Default to Page 1
     pages.forEach(page => page.visible = false);
     page1.visible = true;
 
+    // Start tick updates
     createjs.Ticker.framerate = 60;
     createjs.Ticker.on("tick", stage);
 }
