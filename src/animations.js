@@ -482,8 +482,80 @@ export function buildBanner(loaderArg, stageArg) {
     let containerStartX = 0;
     let containerStartY = 0;
 
+    let idleTimer = null;
+
+    function scrollThumbnailIntoView(index) {
+        if (CONFIG.thumb.direction === "horizontal") {
+            const wrapperX = index * (CONFIG.thumb.width + CONFIG.thumb.gap);
+            const viewportWidth = CONFIG.width;
+            let targetX = -wrapperX + (viewportWidth - CONFIG.thumb.width) / 2;
+            targetX = containInRange(targetX, thumbContainer);
+            createjs.Tween.get(thumbContainer, { override: true })
+                .to({ x: targetX }, 300, createjs.Ease.quadOut);
+        } else {
+            const wrapperY = index * (CONFIG.thumb.height + CONFIG.thumb.gap);
+            const viewportHeight = CONFIG.height - CONFIG.thumb.sidebarY;
+            let targetY = -wrapperY + (viewportHeight - CONFIG.thumb.height) / 2;
+            targetY = containInRangeVertical(targetY, thumbContainer);
+            createjs.Tween.get(thumbContainer, { override: true })
+                .to({ y: targetY }, 300, createjs.Ease.quadOut);
+        }
+    }
+
+    function switchToPage(index) {
+        if (pages[index].visible) return;
+
+        pages.forEach(page => {
+            page.visible = false;
+        });
+
+        pages[index].visible = true;
+        startAnimationTimer(pages[index]);
+
+        thumbContainer.children.forEach((item, idx) => {
+            const itemFrame = item.getChildByName("frame");
+            if (itemFrame) {
+                if (idx === index) {
+                    item.alpha = 1;
+                    itemFrame.visible = true;
+                    itemFrame.alpha = 0;
+                    createjs.Tween.get(itemFrame)
+                        .to({ alpha: 0.8 }, 300);
+                } else {
+                    itemFrame.visible = false;
+                    itemFrame.alpha = 0;
+                }
+            }
+        });
+
+        scrollThumbnailIntoView(index);
+        stage.update();
+    }
+
+    function resetIdleTimer() {
+        if (idleTimer) {
+            clearTimeout(idleTimer);
+        }
+        idleTimer = setTimeout(autoSwitchNext, 5000);
+    }
+
+    function autoSwitchNext() {
+        let currentIndex = -1;
+        for (let i = 0; i < pages.length; i++) {
+            if (pages[i].visible) {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        const nextIndex = (currentIndex + 1) % pages.length;
+        switchToPage(nextIndex);
+        resetIdleTimer();
+    }
+
     // Touch and drag scroll listeners
     thumbContainer.on("mousedown", (evt) => {
+        resetIdleTimer();
         isDragging = false;
         dragStartX = evt.stageX;
         dragStartY = evt.stageY;
@@ -492,6 +564,7 @@ export function buildBanner(loaderArg, stageArg) {
     });
 
     thumbContainer.on("pressmove", (evt) => {
+        resetIdleTimer();
         if (CONFIG.thumb.direction === "horizontal") {
             const deltaX = evt.stageX - dragStartX;
             if (Math.abs(deltaX) > 5) {
@@ -555,32 +628,9 @@ export function buildBanner(loaderArg, stageArg) {
 
         // Thumbnail click transitions to respective page
         thumbWrapper.on("click", () => {
+            resetIdleTimer();
             if (isDragging) return;
-            if (pages[i].visible) return;
-
-            pages.forEach(page => {
-                page.visible = false;
-            });
-
-            pages[i].visible = true;
-            startAnimationTimer(pages[i]);
-
-            thumbContainer.children.forEach(item => {
-                const itemFrame = item.getChildByName("frame");
-                if (itemFrame) {
-                    itemFrame.visible = false;
-                    itemFrame.alpha = 0;
-                }
-            });
-
-            thumbWrapper.alpha = 1;
-            frame.visible = true;
-            frame.alpha = 0;
-
-            createjs.Tween.get(frame)
-                .to({ alpha: 0.8 }, 300);
-
-            stage.update();
+            switchToPage(i);
         });
 
         thumbContainer.addChild(thumbWrapper);
@@ -589,6 +639,7 @@ export function buildBanner(loaderArg, stageArg) {
     // Mouse wheel scroll listener
     stage.canvas.addEventListener("wheel", (e) => {
         e.preventDefault();
+        resetIdleTimer();
         if (CONFIG.thumb.direction === "horizontal") {
             thumbContainer.x -= e.deltaY * 0.5;
             thumbContainer.x = containInRange(thumbContainer.x, thumbContainer);
@@ -605,4 +656,7 @@ export function buildBanner(loaderArg, stageArg) {
     // Start tick updates
     createjs.Ticker.framerate = 60;
     createjs.Ticker.on("tick", stage);
+
+    // Start auto-rotation idle timer
+    resetIdleTimer();
 }
