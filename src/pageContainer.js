@@ -108,6 +108,9 @@ export class PageBlock {
             const icon = new createjs.Bitmap(this.loader.getResult(config.icon.asset));
             icon.x = config.icon.x;
             icon.y = config.icon.y;
+            icon.startX = config.icon.x;
+            icon.startY = config.icon.y;
+            icon.startRotation = config.icon.rotation !== undefined ? config.icon.rotation : 0;
             if (config.icon.rotation !== undefined) {
                 icon.rotation = config.icon.rotation;
             }
@@ -161,8 +164,11 @@ export class PageBlock {
 
             if (page.icon) {
                 page.icon.alpha = 0;
-                page.icon.startX = page.icon.x;
-                page.icon.startY = page.icon.y;
+                page.icon.x = page.icon.startX;
+                page.icon.y = page.icon.startY;
+                page.icon.rotation = page.icon.startRotation;
+                page.icon.scaleX = 1;
+                page.icon.scaleY = 1;
                 if (config.animateIcon) {
                     config.animateIcon(page.icon, page.icon.startX, page.icon.startY);
                 }

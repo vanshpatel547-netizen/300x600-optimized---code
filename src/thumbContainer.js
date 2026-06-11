@@ -185,6 +185,16 @@ export class ThumbBlock {
         const subTxt = new createjs.Bitmap(this.loader.getResult(config.subtxtAsset));
         page.addChild(subTxt);
 
+        // Set up decorative Circle Text
+        if (config.circle) {
+            const circleAsset = index === 0 ? "0_circle_txt" : "circle_txt";
+            const circle = new createjs.Bitmap(this.loader.getResult(circleAsset));
+            circle.x = config.circle.x;
+            circle.y = config.circle.y;
+            circle.alpha = 1;
+            page.addChild(circle);
+        }
+
         parent.addChild(page);
         return page;
     }
